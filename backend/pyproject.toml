@@ -1,0 +1,21 @@
+[project]
+name = "mini-openclaw-backend"
+version = "0.1.0"
+description = "Mini-OpenClaw backend — FastAPI + LangGraph agent"
+requires-python = ">=3.10"
+dependencies = [
+    "fastapi",
+    "uvicorn[standard]",
+    "langchain>=0.3",
+    "langchain-core",
+    "langchain-community",
+    "langchain-experimental",
+    "langchain-openai",
+    "langgraph",
+    "llama-index-core",
+    "llama-index-retrievers-bm25",
+    "llama-index-embeddings-openai",
+    "html2text",
+    "httpx",
+    "python-dotenv",
+]
