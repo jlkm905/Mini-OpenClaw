@@ -3,41 +3,45 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 from langchain_openai import ChatOpenAI
-from langgraph.prebuilt import create_react_agent
+from langchain.agents import create_agent
 
 from tools import load_tools
+from graph.skills_snapshot import generate_snapshot
 
 load_dotenv()
 
-SOUL_PATH = Path(__file__).parent.parent / "workspace" / "SOUL.md"
-MEMORY_PATH = Path(__file__).parent.parent / "memory" / "MEMORY.md"
-SKILLS_DIR = Path(__file__).parent.parent / "skills"
+_BACKEND = Path(__file__).parent.parent
+_WORKSPACE = _BACKEND / "workspace"
+
+_SOUL_PATH = _WORKSPACE / "SOUL.md"
+_IDENTITY_PATH = _WORKSPACE / "IDENTITY.md"
+_USER_PATH = _WORKSPACE / "USER.md"
+_AGENTS_PATH = _WORKSPACE / "AGENTS.md"
+_MEMORY_PATH = _BACKEND / "MEMORY.md"
+
+_MAX_SECTION_CHARS = 20_000
 
 
-def _build_system_prompt() -> str:
-    parts = []
+def _truncate(text: str) -> str:
+    if len(text) > _MAX_SECTION_CHARS:
+        return text[:_MAX_SECTION_CHARS] + "\n...[truncated]"
+    return text
 
-    if SOUL_PATH.exists():
-        parts.append(SOUL_PATH.read_text(encoding="utf-8").strip())
 
-    memory_text = MEMORY_PATH.read_text(encoding="utf-8").strip() if MEMORY_PATH.exists() else ""
-    if memory_text:
-        parts.append(f"\n## Long-Term Memory\n{memory_text}")
+def _read(path: Path) -> str:
+    return path.read_text(encoding="utf-8").strip() if path.exists() else ""
 
-    skill_lines = []
-    for skill_md in sorted(SKILLS_DIR.rglob("SKILL.md")):
-        skill_name = skill_md.parent.name
-        first_line = skill_md.read_text(encoding="utf-8").split("\n")[0].lstrip("# ").strip()
-        skill_lines.append(f"- **{skill_name}**: {first_line}")
 
-    if skill_lines:
-        parts.append(
-            "\n## Available Skills\n"
-            + "\n".join(skill_lines)
-            + "\n\nUse `read_file` to read a skill's full SKILL.md before executing it."
-        )
-
-    return "\n\n".join(parts)
+def _build_system_prompt(skills_xml: str) -> str:
+    sections = [
+        _truncate(skills_xml.strip()),         # 1. SKILLS_SNAPSHOT
+        _truncate(_read(_SOUL_PATH)),           # 2. SOUL.md
+        _truncate(_read(_IDENTITY_PATH)),       # 3. IDENTITY.md
+        _truncate(_read(_USER_PATH)),           # 4. USER.md
+        _truncate(_read(_AGENTS_PATH)),         # 5. AGENTS.md
+        _truncate(_read(_MEMORY_PATH)),         # 6. MEMORY.md
+    ]
+    return "\n\n".join(s for s in sections if s)
 
 
 def build_agent():
@@ -48,6 +52,5 @@ def build_agent():
         temperature=0,
     )
 
-    # langgraph.prebuilt.create_react_agent is the recommended LangGraph-native agent API.
-    # It replaces the legacy AgentExecutor + create_react_agent(chain) pattern.
-    return create_react_agent(llm, load_tools(), prompt=_build_system_prompt())
+    skills_xml = generate_snapshot()
+    return create_agent(llm, load_tools(), system_prompt=_build_system_prompt(skills_xml))

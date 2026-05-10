@@ -18,4 +18,5 @@ dependencies = [
     "html2text",
     "httpx",
     "python-dotenv",
+    "langchain-anthropic>=1.4.3",
 ]
