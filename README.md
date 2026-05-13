@@ -1,6 +1,12 @@
 # Mini OpenClaw
 
-A simplified personal AI agent system built with LangChain/LangGraph (backend) and Next.js (frontend).
+Mini OpenClaw is a simplified, learning-oriented reimplementation of [OpenClaw](https://github.com/jlkm905/OpenClaw). Where OpenClaw is a full-featured personal agent system, this project strips it down to its essential ideas — making the internals easier to study, modify, and build on. It is intended for anyone who wants to understand how a personal AI agent works from the ground up, without the complexity of a production system.
+
+## Core Design Areas
+
+- **Skill design** — modular, file-based skills that the agent can discover and invoke dynamically
+- **Memory design** — a structured memory system that persists context across conversations and informs agent behavior
+- **Visualizable frontend** — a Next.js UI that lets users inspect and interact with the agent's active skills and memory in real time
 
 ## Stack
 
