@@ -21,15 +21,14 @@ app.add_middleware(
 )
 
 BACKEND_ROOT = Path(__file__).parent
-SESSIONS_DIR = BACKEND_ROOT / "sessions"
-MEMORY_LOG_DIR = BACKEND_ROOT / "memory" / "logs"
+WORKSPACE_DIR = BACKEND_ROOT / "workspace"
+SESSIONS_DIR = WORKSPACE_DIR / "sessions"
+MEMORY_LOG_DIR = WORKSPACE_DIR / "memory"
 SESSIONS_DIR.mkdir(exist_ok=True)
 MEMORY_LOG_DIR.mkdir(parents=True, exist_ok=True)
 
-# Directories the frontend editor is allowed to write into
-_WRITE_DIRS = {"memory", "skills", "workspace", "sessions"}
-# Root-level files the frontend may write (e.g. MEMORY.md lives at backend root)
-_WRITE_ROOT_FILES = {"MEMORY.md"}
+# Directories the frontend editor is allowed to write into (relative to BACKEND_ROOT)
+_WRITE_DIRS = {"workspace", "skills"}
 
 agent = build_agent()
 
@@ -72,13 +71,7 @@ def _assert_writable(path_str: str) -> None:
     parts = Path(path_str).parts
     if not parts:
         raise HTTPException(status_code=403, detail="Invalid path")
-    if len(parts) == 1:
-        if parts[0] not in _WRITE_ROOT_FILES:
-            raise HTTPException(
-                status_code=403,
-                detail=f"Root-level writes only allowed for: {_WRITE_ROOT_FILES}",
-            )
-    elif parts[0] not in _WRITE_DIRS:
+    if parts[0] not in _WRITE_DIRS:
         raise HTTPException(
             status_code=403,
             detail=f"Writes only allowed inside: {_WRITE_DIRS}",
@@ -133,13 +126,6 @@ def _save_session(session_id: str, history: list[dict]) -> None:
     path = SESSIONS_DIR / f"{session_id}.json"
     path.write_text(json.dumps(history, indent=2, ensure_ascii=False))
 
-
-def _append_memory_log(user_msg: str, ai_reply: str) -> None:
-    today = datetime.now().strftime("%Y-%m-%d")
-    timestamp = datetime.now().strftime("%H:%M:%S")
-    entry = f"\n## {timestamp}\n**User:** {user_msg}\n**Agent:** {ai_reply}\n"
-    with open(MEMORY_LOG_DIR / f"{today}.md", "a", encoding="utf-8") as f:
-        f.write(entry)
 
 
 # ---------------------------------------------------------------------------
@@ -207,7 +193,7 @@ async def _stream_agent(
         new_entries = [_serialize_message(new_human)] + [_serialize_message(m) for m in new_messages]
         history.extend(new_entries)
         _save_session(session_id, history)
-        _append_memory_log(user_msg, final_reply)
+
 
         yield _sse({"type": "done", "content": final_reply, "session_id": session_id})
 

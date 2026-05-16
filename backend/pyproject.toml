@@ -19,4 +19,5 @@ dependencies = [
     "httpx",
     "python-dotenv",
     "langchain-anthropic>=1.4.3",
+    "langchain-google-genai>=4.2.2",
 ]

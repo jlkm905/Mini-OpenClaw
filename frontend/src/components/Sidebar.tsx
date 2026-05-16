@@ -1,6 +1,6 @@
 'use client';
 
-import { MessageSquare, Brain, Zap, Plus, Clock } from 'lucide-react';
+import { MessageSquare, Brain, Zap, Plus, Clock, Trash2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { NavTab, Session } from '@/lib/types';
 
@@ -11,6 +11,7 @@ interface SidebarProps {
   activeSessionId: string | null;
   onSessionSelect: (sessionId: string) => void;
   onNewSession: () => void;
+  onDeleteSession: (sessionId: string) => void;
 }
 
 const tabs: Array<{ id: NavTab; label: string; icon: React.ReactNode }> = [
@@ -47,6 +48,7 @@ export default function Sidebar({
   activeSessionId,
   onSessionSelect,
   onNewSession,
+  onDeleteSession,
 }: SidebarProps) {
   return (
     <aside className="w-[220px] flex-shrink-0 glass-panel border-r border-gray-200/60 flex flex-col overflow-hidden">
@@ -87,30 +89,41 @@ export default function Sidebar({
           </div>
         ) : (
           sessions.map((session) => (
-            <button
+            <div
               key={session.session_id}
-              onClick={() => onSessionSelect(session.session_id)}
               className={cn(
-                'w-full text-left px-3 py-2.5 rounded-lg mx-1 my-0.5 transition-colors',
+                'group relative flex items-center rounded-lg mx-1 my-0.5 transition-colors',
                 activeSessionId === session.session_id
                   ? 'bg-accent/10 text-accent'
                   : 'text-gray-700 hover:bg-gray-100/70',
               )}
               style={{ width: 'calc(100% - 8px)' }}
             >
-              <div className="flex items-start justify-between gap-1">
-                <span className="text-xs font-medium truncate leading-tight">
-                  {getSessionLabel(session)}
-                </span>
-                <span className="text-[10px] text-gray-400 flex-shrink-0 flex items-center gap-0.5">
-                  <Clock className="w-2.5 h-2.5" />
-                  {formatRelativeTime(session.updated_at)}
-                </span>
-              </div>
-              <div className="text-[10px] text-gray-400 mt-0.5">
-                {session.message_count} message{session.message_count !== 1 ? 's' : ''}
-              </div>
-            </button>
+              <button
+                onClick={() => onSessionSelect(session.session_id)}
+                className="flex-1 text-left px-3 py-2.5 min-w-0"
+              >
+                <div className="flex items-start justify-between gap-1">
+                  <span className="text-xs font-medium truncate leading-tight">
+                    {getSessionLabel(session)}
+                  </span>
+                  <span className="text-[10px] text-gray-400 flex-shrink-0 flex items-center gap-0.5">
+                    <Clock className="w-2.5 h-2.5" />
+                    {formatRelativeTime(session.updated_at)}
+                  </span>
+                </div>
+                <div className="text-[10px] text-gray-400 mt-0.5">
+                  {session.message_count} message{session.message_count !== 1 ? 's' : ''}
+                </div>
+              </button>
+              <button
+                onClick={(e) => { e.stopPropagation(); onDeleteSession(session.session_id); }}
+                className="opacity-0 group-hover:opacity-100 flex-shrink-0 p-1.5 mr-1.5 rounded-md text-gray-400 hover:text-red-500 hover:bg-red-50 transition-all"
+                title="Delete session"
+              >
+                <Trash2 className="w-3 h-3" />
+              </button>
+            </div>
           ))
         )}
       </div>

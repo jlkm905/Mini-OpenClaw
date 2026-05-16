@@ -5,7 +5,7 @@ import NavBar from '@/components/NavBar';
 import Sidebar from '@/components/Sidebar';
 import ChatStage from '@/components/ChatStage';
 import Inspector from '@/components/Inspector';
-import { streamChat, getSessions, getSession } from '@/lib/api';
+import { streamChat, getSessions, getSession, deleteSession } from '@/lib/api';
 import type { Message, ToolStep, Session, NavTab, BackendMessage } from '@/lib/types';
 
 let _idCounter = 0;
@@ -111,7 +111,7 @@ export default function HomePage() {
     setActiveTab(tab);
     if (tab === 'memory') {
       inspectorKey.current++;
-      setInspectorFile('MEMORY.md');
+      setInspectorFile('workspace/MEMORY.md');
     } else if (tab === 'skills') {
       inspectorKey.current++;
       setInspectorFile('SKILLS_SNAPSHOT.md');
@@ -135,6 +135,18 @@ export default function HomePage() {
     setInput('');
     setActiveTab('chat');
   }, []);
+
+  const handleDeleteSession = useCallback(async (sessionId: string) => {
+    try {
+      await deleteSession(sessionId);
+      if (activeSessionId === sessionId) {
+        setActiveSessionId(null);
+        setMessages([]);
+      }
+      await refreshSessions();
+    } catch {
+    }
+  }, [activeSessionId, refreshSessions]);
 
   const handleSubmit = useCallback(async () => {
     const text = input.trim();
@@ -242,6 +254,7 @@ export default function HomePage() {
           activeSessionId={activeSessionId}
           onSessionSelect={handleSessionSelect}
           onNewSession={handleNewSession}
+          onDeleteSession={handleDeleteSession}
         />
 
         <main className="flex-1 flex overflow-hidden bg-[#fafafa]/80">

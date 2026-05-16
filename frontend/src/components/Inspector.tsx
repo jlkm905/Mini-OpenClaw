@@ -7,7 +7,7 @@ import { getFile, saveFile } from '@/lib/api';
 import DynamicMonaco from './DynamicMonaco';
 
 const PRESET_FILES = [
-  'MEMORY.md',
+  'workspace/MEMORY.md',
   'workspace/SOUL.md',
   'workspace/IDENTITY.md',
   'workspace/USER.md',

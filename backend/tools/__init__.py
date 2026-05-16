@@ -6,6 +6,7 @@ from langchain_experimental.tools import PythonREPLTool
 from .terminal import build_terminal_tool
 from .fetch_url import FetchURLTool
 from .rag import KnowledgeBaseTool
+from .write_file import WriteFileTool
 
 PROJECT_ROOT = Path(__file__).parent.parent
 
@@ -24,5 +25,6 @@ def load_tools() -> list:
         _PythonREPL(),
         FetchURLTool(),
         ReadFileTool(root_dir=str(PROJECT_ROOT)),
+        WriteFileTool(),
         KnowledgeBaseTool(),
     ]

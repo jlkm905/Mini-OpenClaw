@@ -1,0 +1,2 @@
+- User's name is Jimmy.
+- Jimmy prefers Python.

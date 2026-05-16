@@ -221,6 +221,11 @@ __marimo__/
 # Streamlit
 .streamlit/secrets.toml
 
+# Agent runtime data (private / machine-specific)
+backend/workspace/USER.md
+backend/workspace/memory/
+backend/workspace/sessions/
+
 # Node
 node_modules/
 npm-debug.log*

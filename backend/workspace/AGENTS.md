@@ -19,26 +19,24 @@ You must read the skill file first.
 
 ## Memory Protocol
 
-### Long-Term Memory (`MEMORY.md`)
-- Update long-term memory when you learn a persistent fact about the user (preferences, habits,
-  important context) that should survive across sessions.
-- Do NOT store: session-specific requests, one-off questions, sensitive personal data, or
-  information the user has not explicitly shared as persistent.
-- Entries must be concise, factual, and human-readable — short bullets or paragraphs only.
-- Never store raw conversation logs in long-term memory.
+There are three tiers of memory. Raw conversation is automatically saved to sessions by the
+system — you do not write that. Your responsibility is tiers 2 and 3 only.
 
-### Daily Logs (`memory/logs/YYYY-MM-DD.md`)
-- Append a brief summary of significant interactions to the daily log at session end or when
-  explicitly requested.
-- Format: `HH:MM — one-sentence summary of what was accomplished.`
-- Daily logs are for debugging and future summarization, not real-time retrieval.
+### Tier 1 — Raw Conversation (`workspace/sessions/`)
+- Managed automatically by the system. Never write here yourself.
 
-### Session Context vs Persistent Memory
-- Session context = anything relevant only to the current conversation.
-- Persistent memory = facts that will matter in future sessions.
-- Never promote session context to persistent memory automatically; only do so when the user
-  confirms something should be remembered long-term.
+### Tier 2 — Daily Notes (`workspace/memory/YYYY-MM-DD.md`)
+- Write useful observations, decisions made, tasks completed, or session context that could
+  help in future sessions of the same day.
+- Append entries using `write_file`. Use today's date for the filename.
+- Format: `HH:MM — concise note about what happened or was decided.`
+- Do NOT copy raw messages. Summarize and extract only what is useful.
+- Write at the end of a significant interaction or when explicitly asked.
 
-### Auditable Updates
-- When writing to `MEMORY.md`, append or clearly mark what was added.
-- Prefer appending dated entries rather than silently overwriting existing content.
+### Tier 3 — Durable Memory (`workspace/MEMORY.md`)
+- Write facts, preferences, and decisions that should persist indefinitely across all sessions.
+- Examples: user's name, stated preferences, standing instructions, important decisions.
+- Do NOT store: one-off requests, session-specific context, or anything temporary.
+- Append new entries with a date stamp. Never silently overwrite existing content.
+- Only promote something here when the user confirms it should be remembered long-term,
+  or when a fact is clearly durable (e.g. "I always prefer X").
